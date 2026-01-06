@@ -21,6 +21,8 @@ Once you've got Claude Code set up, you can point it at your codebase, have it l
 
 A ton of maintenance and quality work is just... automated. It runs ridiculously smoothly.
 
+**JIRA/Linear Integration?** We connect Claude Code to our ticket system via [MCP servers](.mcp.json). Now Claude can read the ticket, understand the requirements, implement the feature, update the ticket status, and even create new tickets if it finds bugs along the way. The [`/ticket` command](.claude/commands/ticket.md) handles the entire workflow—from reading acceptance criteria to linking the PR back to the ticket.
+
 We even use Claude Code for ticket triage. It reads the ticket, digs into the codebase, and leaves a comment with what it thinks should be done. So when an engineer picks it up, they're basically starting halfway through already.
 
 **There is so much low-hanging fruit here that it honestly blows my mind people aren't all over it.**
@@ -34,6 +36,8 @@ We even use Claude Code for ticket triage. It reads the ticket, digs into the co
 - [Configuration Reference](#configuration-reference)
   - [CLAUDE.md - Project Memory](#claudemd---project-memory)
   - [settings.json - Hooks & Environment](#settingsjson---hooks--environment)
+  - [MCP Servers - External Integrations](#mcp-servers---external-integrations)
+  - [LSP Servers - Real-Time Code Intelligence](#lsp-servers---real-time-code-intelligence)
   - [Skill Evaluation Hooks](#skill-evaluation-hooks)
   - [Skills - Domain Knowledge](#skills---domain-knowledge)
   - [Agents - Specialized Assistants](#agents---specialized-assistants)
@@ -49,6 +53,7 @@ We even use Claude Code for ticket triage. It reads the ticket, digs into the co
 ```
 your-project/
 ├── CLAUDE.md                      # Project memory (alternative location)
+├── .mcp.json                      # MCP server configuration (JIRA, GitHub, etc.)
 ├── .claude/
 │   ├── settings.json              # Hooks, environment, permissions
 │   ├── settings.local.json        # Personal overrides (gitignored)
@@ -225,6 +230,288 @@ The main configuration file for hooks, environment variables, and permissions.
 - `0` - Success
 - `2` - Blocking error (PreToolUse only, blocks the tool)
 - Other - Non-blocking error
+
+---
+
+### MCP Servers - External Integrations
+
+MCP (Model Context Protocol) servers let Claude Code connect to external tools like JIRA, GitHub, Slack, databases, and more. This is how you enable workflows like "read a ticket, implement it, and update the ticket status."
+
+**Location:** `.mcp.json` (project root, committed to git for team sharing)
+
+**📄 Example:** [.mcp.json](.mcp.json)
+
+#### How MCP Works
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Claude Code   │────▶│   MCP Server    │────▶│  External API   │
+│                 │◀────│  (local bridge) │◀────│  (JIRA, GitHub) │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+MCP servers run locally and provide Claude with tools to interact with external services. When you configure a JIRA MCP server, Claude gets tools like `jira_get_issue`, `jira_update_issue`, `jira_create_issue`, etc.
+
+#### .mcp.json Format
+
+```json
+{
+  "mcpServers": {
+    "server-name": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-server-name"],
+      "env": {
+        "API_KEY": "${API_KEY}"
+      }
+    }
+  }
+}
+```
+
+**Fields:**
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `type` | Yes | Server type: `stdio` (local process) or `http` (remote) |
+| `command` | For stdio | Executable to run (e.g., `npx`, `python`) |
+| `args` | No | Command-line arguments |
+| `env` | No | Environment variables (supports `${VAR}` expansion) |
+| `url` | For http | Remote server URL |
+| `headers` | For http | HTTP headers for authentication |
+
+#### Example: JIRA Integration
+
+```json
+{
+  "mcpServers": {
+    "jira": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-jira"],
+      "env": {
+        "JIRA_HOST": "${JIRA_HOST}",
+        "JIRA_EMAIL": "${JIRA_EMAIL}",
+        "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+**What this enables:**
+- Read ticket details, acceptance criteria, and comments
+- Update ticket status (To Do → In Progress → In Review)
+- Add comments with progress updates
+- Create new tickets for bugs found during development
+- Link PRs to tickets
+
+**Example workflow with [`/ticket` command](.claude/commands/ticket.md):**
+```
+You: /ticket PROJ-123
+
+Claude:
+1. Fetching PROJ-123 from JIRA...
+   "Add user profile avatar upload"
+
+2. Reading acceptance criteria...
+   - Upload button on profile page
+   - Support JPG/PNG up to 5MB
+   - Show loading state
+
+3. Searching codebase for related files...
+   Found: src/screens/Profile/ProfileScreen.tsx
+
+4. Creating branch: cw/PROJ-123-avatar-upload
+
+5. [Implements feature...]
+
+6. Updating JIRA status to "In Review"
+   Adding comment: "PR #456 ready for review"
+
+7. Creating PR linked to PROJ-123...
+```
+
+#### Common MCP Server Configurations
+
+**Issue Tracking:**
+```json
+{
+  "jira": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-jira"],
+    "env": {
+      "JIRA_HOST": "${JIRA_HOST}",
+      "JIRA_EMAIL": "${JIRA_EMAIL}",
+      "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
+    }
+  },
+  "linear": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-linear"],
+    "env": { "LINEAR_API_KEY": "${LINEAR_API_KEY}" }
+  }
+}
+```
+
+**Code & DevOps:**
+```json
+{
+  "github": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-github"],
+    "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
+  },
+  "sentry": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-sentry"],
+    "env": {
+      "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
+      "SENTRY_ORG": "${SENTRY_ORG}"
+    }
+  }
+}
+```
+
+**Communication:**
+```json
+{
+  "slack": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-slack"],
+    "env": {
+      "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
+      "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
+    }
+  }
+}
+```
+
+**Databases:**
+```json
+{
+  "postgres": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-postgres"],
+    "env": { "DATABASE_URL": "${DATABASE_URL}" }
+  }
+}
+```
+
+#### Environment Variables
+
+MCP configs support variable expansion:
+- `${VAR}` - Expands to environment variable (fails if not set)
+- `${VAR:-default}` - Uses default if VAR is not set
+
+Set these in your shell profile or `.env` file (don't commit secrets!):
+```bash
+export JIRA_HOST="https://yourcompany.atlassian.net"
+export JIRA_EMAIL="you@company.com"
+export JIRA_API_TOKEN="your-api-token"
+```
+
+#### Settings for MCP
+
+In `settings.json`, you can auto-approve MCP servers:
+
+```json
+{
+  "enableAllProjectMcpServers": true
+}
+```
+
+Or approve specific servers:
+```json
+{
+  "enabledMcpjsonServers": ["jira", "github", "slack"]
+}
+```
+
+---
+
+### LSP Servers - Real-Time Code Intelligence
+
+LSP (Language Server Protocol) gives Claude real-time understanding of your code—type information, errors, completions, and navigation. Instead of just reading text, Claude can "see" your code the way your IDE does.
+
+**Why this matters:** When you edit TypeScript, Claude immediately knows if you introduced a type error. When you reference a function, Claude can jump to its definition. This dramatically improves code generation quality.
+
+#### Enabling LSP
+
+LSP support is enabled through plugins in `settings.json`:
+
+```json
+{
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true
+  }
+}
+```
+
+#### What Claude Gets from LSP
+
+| Feature | Description |
+|---------|-------------|
+| **Diagnostics** | Real-time errors and warnings after every edit |
+| **Type Information** | Hover info, function signatures, type definitions |
+| **Code Navigation** | Go to definition, find references |
+| **Completions** | Context-aware symbol suggestions |
+
+#### Available LSP Plugins
+
+| Plugin | Language | Install Binary First |
+|--------|----------|---------------------|
+| `typescript-lsp` | TypeScript/JavaScript | `npm install -g typescript-language-server typescript` |
+| `pyright-lsp` | Python | `pip install pyright` |
+| `rust-lsp` | Rust | `rustup component add rust-analyzer` |
+
+#### Custom LSP Configuration
+
+For advanced setups, create `.lsp.json`:
+
+```json
+{
+  "typescript": {
+    "command": "typescript-language-server",
+    "args": ["--stdio"],
+    "extensionToLanguage": {
+      ".ts": "typescript",
+      ".tsx": "typescriptreact"
+    },
+    "initializationOptions": {
+      "preferences": {
+        "quotePreference": "single"
+      }
+    }
+  }
+}
+```
+
+#### Troubleshooting
+
+If LSP isn't working:
+
+1. **Check binary is installed:**
+   ```bash
+   which typescript-language-server  # Should return a path
+   ```
+
+2. **Enable debug logging:**
+   ```bash
+   claude --enable-lsp-logging
+   ```
+
+3. **Check plugin status:**
+   ```bash
+   claude /plugin  # View Errors tab
+   ```
 
 ---
 
@@ -614,11 +901,13 @@ Commit everything except:
 | [CLAUDE.md](CLAUDE.md) | Example project memory file |
 | [.claude/settings.json](.claude/settings.json) | Full hooks configuration |
 | [.claude/settings.md](.claude/settings.md) | Human-readable hooks documentation |
+| [.mcp.json](.mcp.json) | MCP server configuration (JIRA, GitHub, Slack, etc.) |
 | **Agents** | |
 | [.claude/agents/code-reviewer.md](.claude/agents/code-reviewer.md) | Comprehensive code review agent |
 | [.claude/agents/github-workflow.md](.claude/agents/github-workflow.md) | Git workflow agent |
 | **Commands** | |
 | [.claude/commands/onboard.md](.claude/commands/onboard.md) | Deep task exploration |
+| [.claude/commands/ticket.md](.claude/commands/ticket.md) | **JIRA/Linear ticket workflow (read → implement → update)** |
 | [.claude/commands/pr-review.md](.claude/commands/pr-review.md) | PR review workflow |
 | [.claude/commands/pr-summary.md](.claude/commands/pr-summary.md) | Generate PR summary |
 | [.claude/commands/code-quality.md](.claude/commands/code-quality.md) | Quality checks |
