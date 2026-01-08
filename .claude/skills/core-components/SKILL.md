@@ -1,30 +1,30 @@
 ---
 name: core-components
-description: Core component library and design system patterns. Use when building UI, using design tokens, or working with the component library.
+description: 核心组件库与设计系统模式；在构建 UI、使用设计令牌或核心组件时启用。
 ---
 
 # Core Components
 
-## Design System Overview
+## 设计系统概览
 
-Use components from your core library instead of raw platform components. This ensures consistent styling and behavior.
+优先使用核心组件库，而不是原生平台组件，以保持统一的样式与交互。
 
-## Design Tokens
+## 设计令牌（Design Tokens）
 
-**NEVER hard-code values. Always use design tokens.**
+**绝不要硬编码值，必须使用 design token。**
 
-### Spacing Tokens
+### 间距令牌
 
 ```tsx
-// CORRECT - Use tokens
+// 正确：使用 token
 <Box padding="$4" marginBottom="$2" />
 
-// WRONG - Hard-coded values
+// 错误：硬编码
 <Box padding={16} marginBottom={8} />
 ```
 
-| Token | Value |
-|-------|-------|
+| Token | 值 |
+|-------|----|
 | `$1` | 4px |
 | `$2` | 8px |
 | `$3` | 12px |
@@ -32,28 +32,28 @@ Use components from your core library instead of raw platform components. This e
 | `$6` | 24px |
 | `$8` | 32px |
 
-### Color Tokens
+### 颜色令牌
 
 ```tsx
-// CORRECT - Semantic tokens
+// 正确：语义颜色
 <Text color="$textPrimary" />
 <Box backgroundColor="$backgroundSecondary" />
 
-// WRONG - Hard-coded colors
+// 错误：硬编码颜色
 <Text color="#333333" />
 <Box backgroundColor="rgb(245, 245, 245)" />
 ```
 
-| Semantic Token | Use For |
-|----------------|---------|
-| `$textPrimary` | Main text |
-| `$textSecondary` | Supporting text |
-| `$textTertiary` | Disabled/hint text |
-| `$primary500` | Brand/accent color |
-| `$statusError` | Error states |
-| `$statusSuccess` | Success states |
+| 语义 Token | 用途 |
+|------------|------|
+| `$textPrimary` | 主文本 |
+| `$textSecondary` | 辅助文本 |
+| `$textTertiary` | 禁用/提示文本 |
+| `$primary500` | 品牌/强调色 |
+| `$statusError` | 错误状态 |
+| `$statusSuccess` | 成功状态 |
 
-### Typography Tokens
+### 排版令牌
 
 ```tsx
 <Text fontSize="$lg" fontWeight="$semibold" />
@@ -68,11 +68,11 @@ Use components from your core library instead of raw platform components. This e
 | `$xl` | 20px |
 | `$2xl` | 24px |
 
-## Core Components
+## 核心组件
 
 ### Box
 
-Base layout component with token support:
+支持 token 的基础布局组件：
 
 ```tsx
 <Box
@@ -86,7 +86,7 @@ Base layout component with token support:
 
 ### HStack / VStack
 
-Horizontal and vertical flex layouts:
+水平与垂直布局：
 
 ```tsx
 <HStack gap="$3" alignItems="center">
@@ -102,7 +102,7 @@ Horizontal and vertical flex layouts:
 
 ### Text
 
-Typography with token support:
+支持 token 的排版组件：
 
 ```tsx
 <Text
@@ -116,7 +116,7 @@ Typography with token support:
 
 ### Button
 
-Interactive button with variants:
+带多种变体的交互按钮：
 
 ```tsx
 <Button
@@ -130,16 +130,16 @@ Interactive button with variants:
 </Button>
 ```
 
-| Variant | Use For |
-|---------|---------|
-| `solid` | Primary actions |
-| `outline` | Secondary actions |
-| `ghost` | Tertiary/subtle actions |
-| `link` | Inline actions |
+| Variant | 用途 |
+|---------|------|
+| `solid` | 主要操作 |
+| `outline` | 次要操作 |
+| `ghost` | 第三梯队/弱提示 |
+| `link` | 行内操作 |
 
 ### Input
 
-Form input with validation:
+带校验信息的表单输入：
 
 ```tsx
 <Input
@@ -153,7 +153,7 @@ Form input with validation:
 
 ### Card
 
-Content container:
+内容卡片容器：
 
 ```tsx
 <Card padding="$4" gap="$3">
@@ -166,9 +166,9 @@ Content container:
 </Card>
 ```
 
-## Layout Patterns
+## 布局模式
 
-### Screen Layout
+### Screen 布局
 
 ```tsx
 const MyScreen = () => (
@@ -181,7 +181,7 @@ const MyScreen = () => (
 );
 ```
 
-### Form Layout
+### 表单布局
 
 ```tsx
 <VStack gap="$4" padding="$4">
@@ -191,7 +191,7 @@ const MyScreen = () => (
 </VStack>
 ```
 
-### List Item Layout
+### 列表项布局
 
 ```tsx
 <HStack
@@ -210,33 +210,33 @@ const MyScreen = () => (
 </HStack>
 ```
 
-## Anti-Patterns
+## 反模式
 
 ```tsx
-// WRONG - Hard-coded values
+// 错误：硬编码样式
 <View style={{ padding: 16, backgroundColor: '#fff' }}>
 
-// CORRECT - Design tokens
+// 正确：使用 token
 <Box padding="$4" backgroundColor="$backgroundPrimary">
 
 
-// WRONG - Raw platform components
+// 错误：直接使用原生组件
 import { View, Text } from 'react-native';
 
-// CORRECT - Core components
+// 正确：使用核心组件
 import { Box, Text } from 'components/core';
 
 
-// WRONG - Inline styles
+// 错误：内联样式
 <Text style={{ fontSize: 18, fontWeight: '600' }}>
 
-// CORRECT - Token props
+// 正确：token 属性
 <Text fontSize="$lg" fontWeight="$semibold">
 ```
 
-## Component Props Pattern
+## 组件 Props 模式
 
-When creating components, use token-based props:
+创建新组件时使用 token 化的 props：
 
 ```tsx
 interface CardProps {
@@ -257,8 +257,8 @@ const Card = ({ padding = '$4', variant = 'elevated', children }: CardProps) => 
 );
 ```
 
-## Integration with Other Skills
+## 与其他技能协作
 
-- **react-ui-patterns**: Use core components for UI states
-- **testing-patterns**: Mock core components in tests
-- **storybook**: Document component variants
+- **react-ui-patterns**：使用核心组件实现 UI 状态
+- **testing-patterns**：在测试中 mock 核心组件
+- **storybook**：记录组件变体

@@ -1,80 +1,80 @@
-# Project Name
+# 项目名称
 
-> This is an example CLAUDE.md file showing how to configure Claude Code for your project.
+> 这是一个示例 CLAUDE.md，用于展示如何为项目配置 Claude Code。
 
-## Quick Facts
+## 关键信息
 
-- **Stack**: React, TypeScript, Node.js
-- **Test Command**: `npm test`
-- **Lint Command**: `npm run lint`
-- **Build Command**: `npm run build`
+- **技术栈**：React、TypeScript、Node.js
+- **测试命令**：`npm test`
+- **Lint 命令**：`npm run lint`
+- **构建命令**：`npm run build`
 
-## Key Directories
+## 关键目录
 
-- `src/components/` - React components
-- `src/hooks/` - Custom React hooks
-- `src/utils/` - Utility functions
-- `src/api/` - API client code
-- `tests/` - Test files
+- `src/components/` - React 组件
+- `src/hooks/` - 自定义 React hooks
+- `src/utils/` - 工具函数
+- `src/api/` - API 客户端代码
+- `tests/` - 测试文件
 
-## Code Style
+## 代码风格
 
-- TypeScript strict mode enabled
-- Prefer `interface` over `type` (except unions/intersections)
-- No `any` - use `unknown` instead
-- Use early returns, avoid nested conditionals
-- Prefer composition over inheritance
+- 启用 TypeScript 严格模式
+- 更倾向 `interface` 而不是 `type`（联合/交叉除外）
+- 禁止 `any`，请使用 `unknown`
+- 优先使用提前返回，避免嵌套条件
+- 倡导组合优先于继承
 
-## Git Conventions
+## Git 约定
 
-- **Branch naming**: `{initials}/{description}` (e.g., `jd/fix-login`)
-- **Commit format**: Conventional Commits (`feat:`, `fix:`, `docs:`, etc.)
-- **PR titles**: Same as commit format
+- **分支命名**：`{缩写}/{描述}`（例如 `jd/fix-login`）
+- **提交格式**：Conventional Commits（`feat:`、`fix:`、`docs:` 等）
+- **PR 标题**：沿用提交格式
 
-## Critical Rules
+## 关键规则
 
-### Error Handling
-- NEVER swallow errors silently
-- Always show user feedback for errors
-- Log errors for debugging
+### 错误处理
+- 切勿默默吞掉错误
+- 必须向用户展示错误反馈
+- 记录日志以便调试
 
-### UI States
-- Always handle: loading, error, empty, success states
-- Show loading ONLY when no data exists
-- Every list needs an empty state
+### UI 状态
+- 必须处理 loading、error、empty、success 状态
+- 仅在没有数据时显示全屏 loading
+- 每个列表都需要空状态
 
 ### Mutations
-- Disable buttons during async operations
-- Show loading indicator on buttons
-- Always have onError handler with user feedback
+- 异步操作期间禁用按钮
+- 在按钮上显示加载指示
+- 必须提供 onError，并给出用户反馈
 
-## Testing
+## 测试
 
-- Write failing test first (TDD)
-- Use factory pattern: `getMockX(overrides)`
-- Test behavior, not implementation
-- Run tests before committing
+- 先写失败的测试（TDD）
+- 使用工厂模式：`getMockX(overrides)`
+- 测试行为而不是实现细节
+- 提交前运行全部测试
 
-## Skill Activation
+## 技能激活
 
-Before implementing ANY task, check if relevant skills apply:
+在实现任何任务之前，先确认相关技能：
 
-- Creating tests → `testing-patterns` skill
-- Building forms → `formik-patterns` skill
-- GraphQL operations → `graphql-schema` skill
-- Debugging issues → `systematic-debugging` skill
-- UI components → `react-ui-patterns` skill
+- 编写测试 → `testing-patterns`
+- 构建表单 → `formik-patterns`
+- GraphQL 操作 → `graphql-schema`
+- 调试问题 → `systematic-debugging`
+- UI 组件 → `react-ui-patterns`
 
-## Common Commands
+## 常用命令
 
 ```bash
-# Development
-npm run dev          # Start dev server
-npm test             # Run tests
-npm run lint         # Run linter
-npm run typecheck    # Check types
+# 开发
+npm run dev          # 启动开发服务器
+npm test             # 运行测试
+npm run lint         # 执行 lint
+npm run typecheck    # 类型检查
 
 # Git
-npm run commit       # Interactive commit
-gh pr create         # Create PR
+npm run commit       # 交互式提交
+gh pr create         # 创建 PR
 ```

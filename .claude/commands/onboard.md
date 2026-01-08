@@ -1,22 +1,22 @@
-# Onboard
+# Onboard（上手）
 
-You are given the following context:
+你将获得如下上下文：
 $ARGUMENTS
 
-## Instructions
+## 指令
 
-> "AI models are geniuses who start from scratch on every task." – Noam Brown
+> “AI 模型就像天才，但每次都要从零开始执行任务。”——Noam Brown
 
-Your job is to **onboard** yourself to the current task.
+你的工作是**让自己完全上手当前任务**。
 
-Do this by:
+具体执行方式：
 
-- Using extended thinking
-- Exploring the codebase
-- Asking me questions if needed
+- 进行深入的思考过程
+- 探索代码库
+- 需要时向我提问
 
-The goal is to get you fully prepared to start working on the task.
+目标是让你在真正动手前就完全做好准备。
 
-Take as long as you need to get yourself ready. Overdoing it is better than underdoing it.
+花足够多的时间，自我准备宁可多做也不要少做。
 
-Record everything in a `.claude/tasks/[TASK_ID]/onboarding.md` file. This file will be used to onboard you to the task in a new session if needed, so make sure it's comprehensive.
+请把所有发现记录在 `.claude/tasks/[TASK_ID]/onboarding.md` 中。日后如果在新会话中再次处理该任务，就会用到这份文档，因此务必详尽。

@@ -1,35 +1,35 @@
 ---
 name: testing-patterns
-description: Jest testing patterns, factory functions, mocking strategies, and TDD workflow. Use when writing unit tests, creating test factories, or following TDD red-green-refactor cycle.
+description: Jest 测试模式、工厂函数、mock 策略与 TDD 流程；在编写单元测试、创建测试工厂或遵循红-绿-重构周期时使用。
 ---
 
-# Testing Patterns and Utilities
+# 测试模式与工具
 
-## Testing Philosophy
+## 测试理念
 
-**Test-Driven Development (TDD):**
-- Write failing test FIRST
-- Implement minimal code to pass
-- Refactor after green
-- Never write production code without a failing test
+**测试驱动开发（TDD）：**
+- 先写失败的测试
+- 仅实现能让其通过的最小代码
+- 通过后再重构
+- 没有失败测试时禁止写生产代码
 
-**Behavior-Driven Testing:**
-- Test behavior, not implementation
-- Focus on public APIs and business requirements
-- Avoid testing implementation details
-- Use descriptive test names that describe behavior
+**行为驱动测试：**
+- 关注行为而非实现
+- 聚焦公共 API 与业务需求
+- 避免测试内部细节
+- 使用描述行为的测试名称
 
-**Factory Pattern:**
-- Create `getMockX(overrides?: Partial<X>)` functions
-- Provide sensible defaults
-- Allow overriding specific properties
-- Keep tests DRY and maintainable
+**工厂模式：**
+- 创建 `getMockX(overrides?: Partial<X>)`
+- 提供合理默认值
+- 允许按需覆盖字段
+- 让测试保持 DRY 且易维护
 
-## Test Utilities
+## 测试工具
 
-### Custom Render Function
+### 自定义 render 函数
 
-Create a custom render that wraps components with required providers:
+创建一个包含项目 Provider 的 render：
 
 ```typescript
 // src/utils/testUtils.tsx
@@ -43,7 +43,7 @@ export const renderWithTheme = (ui: React.ReactElement) => {
 };
 ```
 
-**Usage:**
+**使用方式：**
 ```typescript
 import { renderWithTheme } from 'utils/testUtils';
 import { screen } from '@testing-library/react-native';
@@ -54,9 +54,9 @@ it('should render component', () => {
 });
 ```
 
-## Factory Pattern
+## 工厂模式
 
-### Component Props Factory
+### 组件 Props 工厂
 
 ```typescript
 import { ComponentProps } from 'react';
@@ -73,7 +73,7 @@ const getMockMyComponentProps = (
   };
 };
 
-// Usage in tests
+// 测试用例
 it('should render with custom title', () => {
   const props = getMockMyComponentProps({ title: 'Custom Title' });
   renderWithTheme(<MyComponent {...props} />);
@@ -81,7 +81,7 @@ it('should render with custom title', () => {
 });
 ```
 
-### Data Factory
+### 数据工厂
 
 ```typescript
 interface User {
@@ -101,7 +101,7 @@ const getMockUser = (overrides?: Partial<User>): User => {
   };
 };
 
-// Usage
+// 示例
 it('should display admin badge for admin users', () => {
   const user = getMockUser({ role: 'admin' });
   renderWithTheme(<UserCard user={user} />);
@@ -109,26 +109,26 @@ it('should display admin badge for admin users', () => {
 });
 ```
 
-## Mocking Patterns
+## Mock 模式
 
-### Mocking Modules
+### Mock 模块
 
 ```typescript
-// Mock entire module
+// 整体 mock 模块
 jest.mock('utils/analytics');
 
-// Mock with factory function
+// 使用 factory 自定义
 jest.mock('utils/analytics', () => ({
   Analytics: {
     logEvent: jest.fn(),
   },
 }));
 
-// Access mock in test
+// 在测试中获取 mock
 const mockLogEvent = jest.requireMock('utils/analytics').Analytics.logEvent;
 ```
 
-### Mocking GraphQL Hooks
+### Mock GraphQL Hooks
 
 ```typescript
 jest.mock('./GetItems.generated', () => ({
@@ -139,7 +139,7 @@ const mockUseGetItemsQuery = jest.requireMock(
   './GetItems.generated'
 ).useGetItemsQuery as jest.Mock;
 
-// In test
+// 测试中
 mockUseGetItemsQuery.mockReturnValue({
   data: { items: [] },
   loading: false,
@@ -147,7 +147,7 @@ mockUseGetItemsQuery.mockReturnValue({
 });
 ```
 
-## Test Structure
+## 测试结构
 
 ```typescript
 describe('ComponentName', () => {
@@ -170,22 +170,22 @@ describe('ComponentName', () => {
 });
 ```
 
-## Query Patterns
+## 查询断言
 
 ```typescript
-// Element must exist
+// 元素必须存在
 expect(screen.getByText('Hello')).toBeTruthy();
 
-// Element should not exist
+// 元素不应存在
 expect(screen.queryByText('Goodbye')).toBeNull();
 
-// Element appears asynchronously
+// 异步出现的元素
 await waitFor(() => {
   expect(screen.findByText('Loaded')).toBeTruthy();
 });
 ```
 
-## User Interaction Patterns
+## 用户交互模式
 
 ```typescript
 import { fireEvent, screen } from '@testing-library/react-native';
@@ -204,56 +204,56 @@ it('should submit form on button click', async () => {
 });
 ```
 
-## Anti-Patterns to Avoid
+## 反模式
 
-### Testing Mock Behavior Instead of Real Behavior
+### 测试 mock 行为而非真实行为
 
 ```typescript
-// Bad - testing the mock
+// 错误：只断言 mock 被调用
 expect(mockFetchData).toHaveBeenCalled();
 
-// Good - testing actual behavior
+// 正确：断言真实输出
 expect(screen.getByText('John Doe')).toBeTruthy();
 ```
 
-### Not Using Factories
+### 不使用工厂
 
 ```typescript
-// Bad - duplicated, inconsistent test data
+// 错误：重复、不一致的数据
 it('test 1', () => {
   const user = { id: '1', name: 'John', email: 'john@test.com', role: 'user' };
 });
 it('test 2', () => {
-  const user = { id: '2', name: 'Jane', email: 'jane@test.com' }; // Missing role!
+  const user = { id: '2', name: 'Jane', email: 'jane@test.com' }; // 缺少 role!
 });
 
-// Good - reusable factory
+// 正确：复用工厂
 const user = getMockUser({ name: 'Custom Name' });
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Always use factory functions** for props and data
-2. **Test behavior, not implementation**
-3. **Use descriptive test names**
-4. **Organize with describe blocks**
-5. **Clear mocks between tests**
-6. **Keep tests focused** - one behavior per test
+1. **始终使用工厂函数** 生成 props/数据
+2. **测试行为而非实现细节**
+3. **使用描述性测试名称**
+4. **用 describe 分组** 保持结构清晰
+5. **在测试间清除 mock**
+6. **单测聚焦**——每个测试只覆盖一个行为
 
-## Running Tests
+## 执行测试
 
 ```bash
-# Run all tests
+# 全量测试
 npm test
 
-# Run with coverage
+# 覆盖率
 npm run test:coverage
 
-# Run specific file
+# 指定文件
 npm test ComponentName.test.tsx
 ```
 
-## Integration with Other Skills
+## 与其他技能协作
 
-- **react-ui-patterns**: Test all UI states (loading, error, empty, success)
-- **systematic-debugging**: Write test that reproduces bug before fixing
+- **react-ui-patterns**：覆盖 Loading/Error/Empty/Success 全状态
+- **systematic-debugging**：修复前先写能复现 bug 的测试

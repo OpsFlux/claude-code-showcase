@@ -1,34 +1,34 @@
 ---
-description: Generate a summary for the current branch changes
+description: 为当前分支的改动生成摘要
 allowed-tools: Bash(git:*)
 ---
 
 # PR Summary
 
-Generate a pull request summary for the current branch.
+为当前分支的改动生成一份 PR 摘要。
 
-## Instructions
+## 指南
 
-1. **Analyze changes**:
+1. **分析改动**：
    ```bash
    git log main..HEAD --oneline
    git diff main...HEAD --stat
    ```
 
-2. **Generate summary** with:
-   - Brief description of what changed
-   - List of files modified
-   - Breaking changes (if any)
-   - Testing notes
+2. **撰写摘要**，包含：
+   - 简述改动内容
+   - 修改的关键文件列表
+   - 若有，说明破坏性变更
+   - 测试说明
 
-3. **Format as PR body**:
+3. **按 PR 模板排版**：
    ```markdown
    ## Summary
-   [1-3 bullet points describing the changes]
+   [1-3 条概述]
 
    ## Changes
-   - [List of significant changes]
+   - [关键改动列表]
 
    ## Test Plan
-   - [ ] [Testing checklist items]
+   - [ ] [测试检查项]
    ```

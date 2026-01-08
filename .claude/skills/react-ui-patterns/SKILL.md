@@ -1,27 +1,27 @@
 ---
 name: react-ui-patterns
-description: Modern React UI patterns for loading states, error handling, and data fetching. Use when building UI components, handling async data, or managing UI states.
+description: 现代 React UI 模式，涵盖加载状态、错误处理和数据获取。在构建组件、处理异步数据或管理界面状态时使用。
 ---
 
-# React UI Patterns
+# React UI 模式
 
-## Core Principles
+## 核心原则
 
-1. **Never show stale UI** - Loading spinners only when actually loading
-2. **Always surface errors** - Users must know when something fails
-3. **Optimistic updates** - Make the UI feel instant
-4. **Progressive disclosure** - Show content as it becomes available
-5. **Graceful degradation** - Partial data is better than no data
+1. **不要展示过期 UI**——只有在真正加载时才显示转圈
+2. **始终暴露错误**——用户必须知道失败
+3. **乐观更新**——让界面感觉即时
+4. **渐进披露**——数据到达就展示
+5. **优雅降级**——部分数据优于无数据
 
-## Loading State Patterns
+## Loading 状态模式
 
-### The Golden Rule
+### 黄金法则
 
-**Show loading indicator ONLY when there's no data to display.**
+**只有在没有可展示数据时才显示加载指示。**
 
 ```typescript
-// CORRECT - Only show loading when no data exists
-const { data, loading, error } = useGetItemsQuery();
+// 正确：仅在无数据时展示 Loading
+const { data, loading, error, refetch } = useGetItemsQuery();
 
 if (error) return <ErrorState error={error} onRetry={refetch} />;
 if (loading && !data) return <LoadingState />;
@@ -31,54 +31,54 @@ return <ItemList items={data.items} />;
 ```
 
 ```typescript
-// WRONG - Shows spinner even when we have cached data
-if (loading) return <LoadingState />; // Flashes on refetch!
+// 错误：即使有缓存数据也显示 Spinner
+if (loading) return <LoadingState />; // 重新获取时闪烁！
 ```
 
-### Loading State Decision Tree
+### Loading 状态决策树
 
 ```
-Is there an error?
-  → Yes: Show error state with retry option
-  → No: Continue
+是否有错误？
+  → 是：展示可重试的错误状态
+  → 否：继续
 
-Is it loading AND we have no data?
-  → Yes: Show loading indicator (spinner/skeleton)
-  → No: Continue
+是否正在加载且没有任何数据？
+  → 是：显示加载指示（Spinner/Skeleton）
+  → 否：继续
 
-Do we have data?
-  → Yes, with items: Show the data
-  → Yes, but empty: Show empty state
-  → No: Show loading (fallback)
+是否有数据？
+  → 有且非空：展示数据
+  → 有但为空：展示空状态
+  → 没有：回退到加载状态
 ```
 
 ### Skeleton vs Spinner
 
-| Use Skeleton When | Use Spinner When |
-|-------------------|------------------|
-| Known content shape | Unknown content shape |
-| List/card layouts | Modal actions |
-| Initial page load | Button submissions |
-| Content placeholders | Inline operations |
+| 使用 Skeleton 的场景 | 使用 Spinner 的场景 |
+|---------------------|--------------------|
+| 已知内容结构 | 内容形态未知 |
+| 列表/卡片布局 | 模态操作 |
+| 首屏加载 | 按钮提交流程 |
+| 占位内容 | 内联小操作 |
 
-## Error Handling Patterns
+## 错误处理模式
 
-### The Error Handling Hierarchy
+### 错误处理层级
 
 ```
-1. Inline error (field-level) → Form validation errors
-2. Toast notification → Recoverable errors, user can retry
-3. Error banner → Page-level errors, data still partially usable
-4. Full error screen → Unrecoverable, needs user action
+1. 行内错误（字段级）→ 表单校验
+2. Toast → 可恢复错误，用户可重试
+3. 错误横幅 → 页面级错误但仍可用
+4. 错误整屏 → 不可恢复，需要操作
 ```
 
-### Always Show Errors
+### 一定要展示错误
 
-**CRITICAL: Never swallow errors silently.**
+**关键：绝不能静默吞掉错误。**
 
 ```typescript
-// CORRECT - Error always surfaced to user
-const [createItem, { loading }] = useCreateItemMutation({
+// 正确：始终呈现错误
+define const [createItem, { loading }] = useCreateItemMutation({
   onCompleted: () => {
     toast.success({ title: 'Item created' });
   },
@@ -88,15 +88,15 @@ const [createItem, { loading }] = useCreateItemMutation({
   },
 });
 
-// WRONG - Error silently caught, user has no idea
+// 错误：用户毫无感知
 const [createItem] = useCreateItemMutation({
   onError: (error) => {
-    console.error(error); // User sees nothing!
+    console.error(error); // 用户看不到任何提示
   },
 });
 ```
 
-### Error State Component Pattern
+### 错误状态组件
 
 ```typescript
 interface ErrorStateProps {
@@ -117,9 +117,9 @@ const ErrorState = ({ error, onRetry, title }: ErrorStateProps) => (
 );
 ```
 
-## Button State Patterns
+## 按钮状态模式
 
-### Button Loading State
+### 按钮加载状态
 
 ```tsx
 <Button
@@ -131,12 +131,12 @@ const ErrorState = ({ error, onRetry, title }: ErrorStateProps) => (
 </Button>
 ```
 
-### Disable During Operations
+### 操作期间禁用
 
-**CRITICAL: Always disable triggers during async operations.**
+**关键：异步过程中必须禁用触发控件。**
 
 ```tsx
-// CORRECT - Button disabled while loading
+// 正确：加载期间禁用按钮
 <Button
   disabled={isSubmitting}
   isLoading={isSubmitting}
@@ -145,23 +145,23 @@ const ErrorState = ({ error, onRetry, title }: ErrorStateProps) => (
   Submit
 </Button>
 
-// WRONG - User can tap multiple times
+// 错误：可以点多次
 <Button onClick={handleSubmit}>
   {isSubmitting ? 'Submitting...' : 'Submit'}
 </Button>
 ```
 
-## Empty States
+## 空状态
 
-### Empty State Requirements
+### 空状态要求
 
-Every list/collection MUST have an empty state:
+所有列表/集合都必须提供空状态：
 
 ```tsx
-// WRONG - No empty state
+// 错误：无空状态
 return <FlatList data={items} />;
 
-// CORRECT - Explicit empty state
+// 正确：明确的空状态
 return (
   <FlatList
     data={items}
@@ -170,17 +170,17 @@ return (
 );
 ```
 
-### Contextual Empty States
+### 语境化的空状态
 
 ```tsx
-// Search with no results
+// 搜索无结果
 <EmptyState
   icon="search"
   title="No results found"
   description="Try different search terms"
 />
 
-// List with no items yet
+// 尚无数据
 <EmptyState
   icon="plus-circle"
   title="No items yet"
@@ -189,7 +189,7 @@ return (
 />
 ```
 
-## Form Submission Pattern
+## 表单提交模式
 
 ```tsx
 const MyForm = () => {
@@ -226,64 +226,64 @@ const MyForm = () => {
 };
 ```
 
-## Anti-Patterns
+## 反模式
 
-### Loading States
+### Loading 状态
 
 ```typescript
-// WRONG - Spinner when data exists (causes flash)
+// 错误：即使有数据也转圈
 if (loading) return <Spinner />;
 
-// CORRECT - Only show loading without data
+// 正确：无数据时才转圈
 if (loading && !data) return <Spinner />;
 ```
 
-### Error Handling
+### 错误处理
 
 ```typescript
-// WRONG - Error swallowed
+// 错误：吞掉异常
 try {
   await mutation();
 } catch (e) {
-  console.log(e); // User has no idea!
+  console.log(e); // 用户毫不知情
 }
 
-// CORRECT - Error surfaced
+// 正确：抛给用户
 onError: (error) => {
   console.error('operation failed:', error);
   toast.error({ title: 'Operation failed' });
 }
 ```
 
-### Button States
+### 按钮状态
 
 ```typescript
-// WRONG - Button not disabled during submission
+// 错误：提交时未禁用
 <Button onClick={submit}>Submit</Button>
 
-// CORRECT - Disabled and shows loading
+// 正确：禁用+加载
 <Button onClick={submit} disabled={loading} isLoading={loading}>
   Submit
 </Button>
 ```
 
-## Checklist
+## 检查清单
 
-Before completing any UI component:
+在完成任何 UI 组件之前：
 
-**UI States:**
-- [ ] Error state handled and shown to user
-- [ ] Loading state shown only when no data exists
-- [ ] Empty state provided for collections
-- [ ] Buttons disabled during async operations
-- [ ] Buttons show loading indicator when appropriate
+**界面状态：**
+- [ ] 错误状态已处理并展示
+- [ ] Loading 仅在无数据时出现
+- [ ] 集合具备空状态
+- [ ] 异步期间按钮禁用
+- [ ] 按钮根据需要展示加载
 
-**Data & Mutations:**
-- [ ] Mutations have onError handler
-- [ ] All user actions have feedback (toast/visual)
+**数据与 Mutation：**
+- [ ] Mutation 具备 onError
+- [ ] 所有用户操作都有反馈（toast/视觉）
 
-## Integration with Other Skills
+## 与其他技能协作
 
-- **graphql-schema**: Use mutation patterns with proper error handling
-- **testing-patterns**: Test all UI states (loading, error, empty, success)
-- **formik-patterns**: Apply form submission patterns
+- **graphql-schema**：结合 Mutation 错误处理模式
+- **testing-patterns**：为 Loading/Error/Empty/Success 编写测试
+- **formik-patterns**：落实表单提交流程
